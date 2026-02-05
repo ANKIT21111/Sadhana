@@ -1,6 +1,22 @@
-
 import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Switch,
+} from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { toHindiDigits } from '../constants';
+
+const THEME = {
+  primary: '#ec9213',
+  background: '#0f1115',
+  card: '#1a1d23',
+  text: '#c19b67',
+  white: '#ffffff',
+};
 
 interface Alarm {
   id: string;
@@ -23,92 +39,263 @@ const AlarmScreen: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-background-dark pb-32">
+    <View style={styles.container}>
       {/* App Bar */}
-      <div className="p-4 flex items-center justify-between sticky top-0 bg-background-dark z-20 border-b border-primary/10">
-        <span className="material-symbols-outlined text-primary text-2xl">temple_hindu</span>
-        <h2 className="text-xl font-bold">ब्रह्म मुहूर्त अलार्म</h2>
-        <button className="p-2 text-white">
-          <span className="material-symbols-outlined">settings</span>
-        </button>
-      </div>
+      <View style={styles.appBar}>
+        <MaterialIcons name="temple-hindu" size={24} color={THEME.primary} />
+        <Text style={styles.appTitle}>ब्रह्म मुहूर्त अलार्म</Text>
+        <TouchableOpacity style={styles.iconButton}>
+          <MaterialIcons name="settings" size={24} color={THEME.white} />
+        </TouchableOpacity>
+      </View>
 
-      <div className="p-6 space-y-8">
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Info Box */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-primary">
-            <span className="material-symbols-outlined">auto_awesome</span>
-            <h3 className="font-bold text-lg">सटीक गणना (Precision)</h3>
-          </div>
-          <p className="text-text-gold text-sm leading-relaxed">
+        <View style={styles.infoBox}>
+          <View style={styles.infoTitleRow}>
+            <MaterialIcons name="auto-awesome" size={20} color={THEME.primary} />
+            <Text style={styles.infoTitle}>सटीक गणना (Precision)</Text>
+          </View>
+          <Text style={styles.infoText}>
             आपकी आध्यात्मिक साधना की अवधि आपके स्थान के सूर्योदय के अनुसार प्रतिदिन स्वचालित रूप से समायोजित की जाती है ताकि साधना का सही मुहूर्त मिल सके।
-          </p>
-          <div className="bg-primary/10 border border-primary/20 rounded-2xl p-5 space-y-4">
-            <div className="flex justify-between items-center pb-3 border-b border-primary/10">
-              <span className="text-primary font-bold text-sm">आज का मुहूर्त</span>
-              <span className="font-bold">{toHindiDigits('4:24')} पूर्वाह्न - {toHindiDigits('5:12')} पूर्वाह्न</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-primary font-bold text-sm">कल का मुहूर्त</span>
-              <span className="font-bold">{toHindiDigits('4:25')} पूर्वाह्न - {toHindiDigits('5:13')} पूर्वाह्न</span>
-            </div>
-          </div>
-        </div>
+          </Text>
+          <View style={styles.muhuratTable}>
+            <View style={styles.muhuratRow}>
+              <Text style={styles.muhuratRowLabel}>आज का मुहूर्त</Text>
+              <Text style={styles.muhuratRowValue}>{toHindiDigits('4:24')} पूर्वाह्न - {toHindiDigits('5:12')} पूर्वाह्न</Text>
+            </View>
+            <View style={[styles.muhuratRow, { borderBottomWidth: 0 }]}>
+              <Text style={styles.muhuratRowLabel}>कल का मुहूर्त</Text>
+              <Text style={styles.muhuratRowValue}>{toHindiDigits('4:25')} पूर्वाह्न - {toHindiDigits('5:13')} पूर्वाह्न</Text>
+            </View>
+          </View>
+        </View>
 
         {/* Alarms List */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-bold">आपके अलार्म</h3>
-          <div className="space-y-4">
-            {alarms.map(alarm => (
-              <div
-                key={alarm.id}
-                className={`bg-white/5 border border-white/10 rounded-3xl p-6 transition-all duration-300 ${!alarm.enabled ? 'opacity-40 grayscale' : 'opacity-100 shadow-xl shadow-black/20'}`}
-              >
-                <div className="flex justify-between items-start mb-6">
-                  <div className="space-y-1">
-                    <div className="flex items-baseline gap-1">
-                      <h4 className="text-4xl font-light tracking-tight">{toHindiDigits(alarm.time)}</h4>
-                      <span className="text-[10px] font-bold text-text-gold/50">{parseInt(alarm.time.split(':')[0]) < 12 ? 'पूर्वाह्न' : 'अपराह्न'}</span>
-                    </div>
-                    <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${alarm.enabled ? 'text-primary' : 'text-text-gold'}`}>
-                      {alarm.label}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => toggleAlarm(alarm.id)}
-                    className={`w-14 h-8 rounded-full transition-all duration-300 relative ${alarm.enabled ? 'bg-primary' : 'bg-white/10'}`}
-                  >
-                    <div className={`absolute top-1 size-6 rounded-full bg-white transition-all duration-300 ${alarm.enabled ? 'left-7' : 'left-1'}`}></div>
-                  </button>
-                </div>
+        <View style={styles.alarmsHeader}>
+          <Text style={styles.alarmsHeaderText}>आपके अलार्म</Text>
+        </View>
+        <View style={styles.alarmsList}>
+          {alarms.map(alarm => (
+            <View
+              key={alarm.id}
+              style={[styles.alarmCard, !alarm.enabled && styles.alarmDisabled]}
+            >
+              <View style={styles.alarmCardHeader}>
+                <View style={styles.alarmTimeContainer}>
+                  <View style={styles.timeRow}>
+                    <Text style={styles.alarmTime}>{toHindiDigits(alarm.time)}</Text>
+                    <Text style={styles.alarmPeriod}>{parseInt(alarm.time.split(':')[0]) < 12 ? 'पूर्वाह्न' : 'अपराह्न'}</Text>
+                  </View>
+                  <Text style={[styles.alarmLabel, alarm.enabled ? styles.alarmLabelActive : styles.alarmLabelInactive]}>
+                    {alarm.label}
+                  </Text>
+                </View>
+                <Switch
+                  value={alarm.enabled}
+                  onValueChange={() => toggleAlarm(alarm.id)}
+                  trackColor={{ false: 'rgba(255,255,255,0.1)', true: THEME.primary }}
+                  thumbColor={THEME.white}
+                />
+              </View>
 
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 text-text-gold">
-                    <span className="material-symbols-outlined text-lg">music_note</span>
-                    <span className="text-sm font-medium">ध्वनि: <span className="text-white">{alarm.sound}</span></span>
-                  </div>
-                  {alarm.note && (
-                    <div className="flex items-center gap-3 text-text-gold">
-                      <span className="material-symbols-outlined text-lg">snooze</span>
-                      <span className="text-sm italic">"{alarm.note}"</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+              <View style={styles.alarmMeta}>
+                <View style={styles.metaRow}>
+                  <MaterialIcons name="music-note" size={18} color={THEME.text} />
+                  <Text style={styles.metaText}>ध्वनि: <Text style={styles.metaValue}>{alarm.sound}</Text></Text>
+                </View>
+                {alarm.note && (
+                  <View style={styles.metaRow}>
+                    <MaterialIcons name="snooze" size={18} color={THEME.text} />
+                    <Text style={styles.metaNote}>"{alarm.note}"</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
 
       {/* FAB */}
-      <div className="fixed bottom-28 left-1/2 -translate-x-1/2 z-30">
-        <button className="bg-primary hover:bg-primary/90 text-background-dark flex items-center gap-3 px-10 py-4 rounded-full shadow-2xl shadow-primary/40 font-black tracking-widest transition-transform active:scale-95 whitespace-nowrap">
-          <span className="material-symbols-outlined">add</span>
-          नया अलार्म जोड़ें
-        </button>
-      </div>
-    </div>
+      <TouchableOpacity style={styles.fab}>
+        <MaterialIcons name="add" size={24} color={THEME.background} />
+        <Text style={styles.fabText}>नया अलार्म जोड़ें</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: THEME.background,
+  },
+  appBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(236,146,19,0.1)',
+  },
+  appTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: THEME.white,
+  },
+  iconButton: {
+    padding: 8,
+  },
+  scrollContent: {
+    padding: 24,
+    paddingBottom: 120, // To make space for the FAB
+  },
+  infoBox: {
+    marginBottom: 32,
+  },
+  infoTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  infoTitle: {
+    color: THEME.primary,
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  infoText: {
+    color: THEME.text,
+    fontSize: 14,
+    lineHeight: 22,
+    marginBottom: 16,
+  },
+  muhuratTable: {
+    backgroundColor: 'rgba(236,146,19,0.1)',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(236,146,19,0.2)',
+  },
+  muhuratRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(236,146,19,0.1)',
+  },
+  muhuratRowLabel: {
+    color: THEME.primary,
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  muhuratRowValue: {
+    color: THEME.white,
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  alarmsHeader: {
+    marginBottom: 16,
+  },
+  alarmsHeaderText: {
+    color: THEME.white,
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  alarmsList: {
+    gap: 16,
+  },
+  alarmCard: {
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 24,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  alarmDisabled: {
+    opacity: 0.4,
+  },
+  alarmCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 20,
+  },
+  alarmTimeContainer: {
+    gap: 4,
+  },
+  timeRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
+  },
+  alarmTime: {
+    color: THEME.white,
+    fontSize: 40,
+    fontWeight: '300',
+  },
+  alarmPeriod: {
+    color: 'rgba(193,155,103,0.5)',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  alarmLabel: {
+    fontSize: 10,
+    fontWeight: '900',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+  },
+  alarmLabelActive: {
+    color: THEME.primary,
+  },
+  alarmLabelInactive: {
+    color: THEME.text,
+  },
+  alarmMeta: {
+    gap: 12,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  metaText: {
+    color: THEME.text,
+    fontSize: 14,
+  },
+  metaValue: {
+    color: THEME.white,
+  },
+  metaNote: {
+    color: THEME.text,
+    fontSize: 14,
+    fontStyle: 'italic',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    alignSelf: 'center',
+    backgroundColor: THEME.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    borderRadius: 100,
+    elevation: 8, // Android shadow
+    shadowColor: THEME.primary, // iOS shadow
+    shadowOffset: { width: 0, height: 4 }, // iOS shadow
+    shadowOpacity: 0.3, // iOS shadow
+    shadowRadius: 8, // iOS shadow
+  },
+  fabText: {
+    color: THEME.background,
+    fontWeight: '900',
+    letterSpacing: 1,
+    marginLeft: 12,
+  },
+});
+
 export default AlarmScreen;
+
