@@ -36,19 +36,19 @@ const HomeScreen: React.FC<{ onJaapStart: () => void }> = ({ onJaapStart }) => {
       <div className="px-6 mb-8">
         <div className="bg-card-dark rounded-3xl overflow-hidden border border-white/5 shadow-xl transition-transform active:scale-95 cursor-pointer" onClick={onJaapStart}>
           <div className="h-48 relative">
-            <img 
-              src="https://picsum.photos/seed/mala/600/400" 
-              alt="Mala" 
+            <img
+              src="https://picsum.photos/seed/mala/600/400"
+              alt="Mala"
               className="w-full h-full object-cover opacity-80"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-card-dark to-transparent"></div>
             <div className="absolute bottom-4 right-4 text-primary">
-               <span className="material-symbols-outlined text-3xl animate-pulse">auto_awesome</span>
+              <span className="material-symbols-outlined text-3xl animate-pulse">auto_awesome</span>
             </div>
           </div>
           <div className="p-5 space-y-4">
             <div className="space-y-1">
-              <h2 className="text-2xl font-bold">नाम जप (Naam Jaap)</h2>
+              <h2 className="text-2xl font-bold">नाम जप</h2>
               <p className="text-text-gold text-sm font-medium">आज का जाप: {toHindiDigits('10,008')}</p>
               <p className="text-text-gold/60 text-xs">लक्ष्य: {toHindiDigits('11,000')} | निरंतरता: {toHindiDigits(15)} दिन 🔥</p>
             </div>
@@ -69,11 +69,11 @@ const HomeScreen: React.FC<{ onJaapStart: () => void }> = ({ onJaapStart }) => {
               <span className="material-symbols-outlined text-primary text-3xl">sunny</span>
             </div>
             <div>
-              <p className="text-2xl font-bold">{toHindiDigits('04:22')} AM</p>
+              <p className="text-2xl font-bold">{toHindiDigits('04:22')} पूर्वाह्न</p>
               <p className="text-text-gold text-xs">अगला मुहूर्त अलार्म</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={() => setAlarmEnabled(!alarmEnabled)}
             className={`w-14 h-8 rounded-full transition-all duration-300 relative ${alarmEnabled ? 'bg-primary' : 'bg-white/10'}`}
           >
