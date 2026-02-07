@@ -1,6 +1,9 @@
 
 import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform } from 'react-native';
 import { Screen } from '../types';
+import { THEME } from '../constants';
+import { Icon } from './Icons';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,13 +13,13 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children, activeScreen, onNavigate }) => {
   return (
-    <div className="flex flex-col h-screen w-full max-w-md mx-auto bg-background-dark overflow-hidden shadow-2xl relative">
-      <main className="flex-1 overflow-y-auto custom-scrollbar">
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
         {children}
-      </main>
+      </View>
       
       {/* Bottom Navigation */}
-      <nav className="h-20 bg-card-dark/80 backdrop-blur-xl border-t border-white/5 flex items-center justify-around px-2 z-50">
+      <View style={styles.navBar}>
         <NavButton 
           icon="prayer_times" 
           label="नाम जप" 
@@ -42,32 +45,69 @@ const Layout: React.FC<LayoutProps> = ({ children, activeScreen, onNavigate }) =
           isActive={activeScreen === Screen.ALARMS} 
           onClick={() => onNavigate(Screen.ALARMS)} 
         />
-      </nav>
-    </div>
+      </View>
+    </SafeAreaView>
   );
 };
 
-interface NavButtonProps {
-  icon: string;
-  label: string;
-  isActive: boolean;
-  onClick: () => void;
-  isCenter?: boolean;
-}
-
-const NavButton: React.FC<NavButtonProps> = ({ icon, label, isActive, onClick, isCenter }) => (
-  <button 
-    onClick={onClick}
-    className={`flex flex-col items-center gap-1 transition-all duration-300 w-16 relative ${
-      isActive ? 'text-primary scale-110' : 'text-text-gold hover:text-white'
-    } ${isCenter && isActive ? 'drop-shadow-[0_0_8px_rgba(236,146,19,0.3)]' : ''}`}
+const NavButton = ({ icon, label, isActive, onClick, isCenter }: any) => (
+  <TouchableOpacity 
+    onPress={onClick}
+    activeOpacity={0.7}
+    style={[styles.navButton, isCenter && isActive && styles.centerActive]}
   >
-    {isCenter && isActive && (
-      <div className="absolute -top-2 w-10 h-1 bg-primary rounded-full blur-[2px]" />
-    )}
-    <span className={`material-symbols-outlined text-2xl ${isActive ? 'fill-1 font-bold' : ''}`}>{icon}</span>
-    <span className="text-[10px] font-bold tracking-wider uppercase">{label}</span>
-  </button>
+    {isCenter && isActive && <View style={styles.activeIndicator} />}
+    <Icon 
+      name={icon} 
+      size={24} 
+      color={isActive ? THEME.primary : THEME.textGold} 
+    />
+    <Text style={[styles.navLabel, { color: isActive ? THEME.primary : THEME.textGold }]}>
+      {label}
+    </Text>
+  </TouchableOpacity>
 );
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: THEME.background,
+  },
+  content: {
+    flex: 1,
+  },
+  navBar: {
+    height: 70,
+    flexDirection: 'row',
+    backgroundColor: THEME.card,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.05)',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingBottom: Platform.OS === 'ios' ? 10 : 0,
+  },
+  navButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 70,
+    gap: 4,
+  },
+  navLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+  },
+  centerActive: {
+    transform: [{ scale: 1.1 }],
+  },
+  activeIndicator: {
+    position: 'absolute',
+    top: -15,
+    width: 30,
+    height: 3,
+    backgroundColor: THEME.primary,
+    borderRadius: 2,
+  }
+});
 
 export default Layout;

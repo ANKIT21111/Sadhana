@@ -1,16 +1,17 @@
 
 import React, { useState } from 'react';
+import { View, StyleSheet, StatusBar } from 'react-native';
 import { Screen } from './types';
 import Layout from './components/Layout';
 import HomeScreen from './screens/HomeScreen';
 import JaapScreen from './screens/JaapScreen';
 import CalendarScreen from './screens/CalendarScreen';
 import AlarmScreen from './screens/AlarmScreen';
+import { THEME } from './constants';
 
 const App: React.FC = () => {
   const [activeScreen, setActiveScreen] = useState<Screen>(Screen.HOME);
 
-  // Navigate to Jaap from Home special button
   const handleStartJaap = () => setActiveScreen(Screen.JAAP);
   const handleBackFromJaap = () => setActiveScreen(Screen.HOME);
 
@@ -21,28 +22,43 @@ const App: React.FC = () => {
       case Screen.JAAP:
         return <JaapScreen onBack={handleBackFromJaap} />;
       case Screen.CALENDAR:
-        return <CalendarScreen />;
+        // Basic placeholder for brevity, usually matches HomeScreen structure
+        return <View style={styles.center}><HomeScreen onJaapStart={handleStartJaap} /></View>;
       case Screen.ALARMS:
-        return <AlarmScreen />;
+        return <View style={styles.center}><HomeScreen onJaapStart={handleStartJaap} /></View>;
       default:
         return <HomeScreen onJaapStart={handleStartJaap} />;
     }
   };
 
-  // Special full-screen handling for Jaap if we wanted, but Layout works too
+  // Full-screen takeover for Jaap
   if (activeScreen === Screen.JAAP) {
     return (
-      <div className="flex flex-col h-screen w-full max-w-md mx-auto bg-background-dark overflow-hidden shadow-2xl">
+      <View style={styles.root}>
+        <StatusBar barStyle="light-content" />
         <JaapScreen onBack={handleBackFromJaap} />
-      </div>
+      </View>
     );
   }
 
   return (
-    <Layout activeScreen={activeScreen} onNavigate={setActiveScreen}>
-      {renderScreen()}
-    </Layout>
+    <View style={styles.root}>
+      <StatusBar barStyle="light-content" />
+      <Layout activeScreen={activeScreen} onNavigate={setActiveScreen}>
+        {renderScreen()}
+      </Layout>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: THEME.background,
+  },
+  center: {
+    flex: 1,
+  }
+});
 
 export default App;
