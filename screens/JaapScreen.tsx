@@ -1,36 +1,21 @@
-import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Pressable,
-  Vibration,
-  Platform,
-} from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { MANTRAS, toHindiDigits } from '../constants';
 
-const THEME = {
-  primary: '#ec9213',
-  background: '#0f1115',
-  card: '#1a1d23',
-  text: '#c19b67',
-  white: '#ffffff',
-};
-
-const JaapScreen: React.FC = () => {
-  const [count, setCount] = useState(0);
-  const [malas, setMalas] = useState(0);
+const JaapScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+  const [count, setCount] = useState(108);
+  const [malas, setMalas] = useState(5);
   const [isPaused, setIsPaused] = useState(false);
   const [selectedMantra, setSelectedMantra] = useState(MANTRAS[0].id);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const incrementCount = useCallback(() => {
     if (isPaused) return;
-
-    // Haptic effect
-    Vibration.vibrate(20);
+    
+    // Haptic effect mockup
+    if (window.navigator.vibrate) {
+      window.navigator.vibrate(20);
+    }
 
     setCount(prev => {
       if (prev >= 108) {
@@ -41,256 +26,124 @@ const JaapScreen: React.FC = () => {
     });
   }, [isPaused]);
 
-  return (
-    <View style={styles.container}>
-      {/* App Bar */}
-      <View style={styles.appBar}>
-        <TouchableOpacity style={styles.iconButton}>
-          <MaterialIcons name="settings" size={24} color={THEME.white} />
-        </TouchableOpacity>
-        <Text style={styles.appTitle}>नाम जप</Text>
-        <TouchableOpacity style={styles.iconButton}>
-          <MaterialIcons name="help-outline" size={24} color={THEME.white} />
-        </TouchableOpacity>
-      </View>
+  const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
+    // Create ripple effect
+    const container = containerRef.current;
+    if (!container) return;
 
-      <View style={styles.content}>
+    const rect = container.getBoundingClientRect();
+    const x = ('touches' in e ? e.touches[0].clientX : e.clientX) - rect.left;
+    const y = ('touches' in e ? e.touches[0].clientY : e.clientY) - rect.top;
+
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    ripple.style.left = `${x}px`;
+    ripple.style.top = `${y}px`;
+    container.appendChild(ripple);
+
+    setTimeout(() => {
+      ripple.remove();
+    }, 600);
+
+    incrementCount();
+  };
+
+  return (
+    <div className="flex flex-col h-full bg-background-dark relative">
+      {/* App Bar */}
+      <div className="p-4 flex items-center justify-between">
+        <button onClick={onBack} className="p-2 text-white">
+          <span className="material-symbols-outlined">arrow_back_ios</span>
+        </button>
+        <h2 className="text-xl font-bold">Naam Jaap</h2>
+        <button className="p-2 text-white">
+          <span className="material-symbols-outlined">settings</span>
+        </button>
+      </div>
+
+      <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-12">
         {/* Main Counter Display */}
-        <View style={styles.counterCircle}>
-          <View style={styles.innerCircle}>
-            <Text style={styles.countText}>{toHindiDigits(count)}</Text>
-            <Text style={styles.countLabel}>जाप संख्या</Text>
-          </View>
-        </View>
+        <div className="relative w-80 h-80 flex items-center justify-center">
+          {/* Animated Rings */}
+          <div className="absolute inset-0 rounded-full border border-primary/20 animate-[spin_10s_linear_infinite]"></div>
+          <div className="absolute inset-4 rounded-full border border-dashed border-primary/40 animate-[spin_15s_linear_infinite_reverse]"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-primary/10 animate-pulse"></div>
+          
+          <div className="z-10 text-center space-y-2">
+            <h1 className="text-[100px] font-bold leading-none tracking-tight">
+              {toHindiDigits(count)}
+            </h1>
+            <p className="text-primary text-xl font-bold tracking-[0.2em] uppercase">Counts</p>
+          </div>
+        </div>
 
         {/* Stats */}
-        <View style={styles.statsContainer}>
-          <Text style={styles.statsText}>कुल मालाएं पूर्ण: {toHindiDigits(malas)}</Text>
-          <View style={styles.statsUnderline} />
-        </View>
+        <div className="text-center space-y-3">
+          <p className="text-text-gold text-lg">Total Malas Completed: {toHindiDigits(malas)}</p>
+          <div className="w-16 h-1 bg-primary/40 mx-auto rounded-full"></div>
+        </div>
 
         {/* Mantra Selection */}
-        <View style={styles.pickerContainer}>
-          <Text style={styles.pickerLabel}>मंत्र का चुनाव करें</Text>
-          <View style={styles.pickerWrapper}>
-            <Picker
-              selectedValue={selectedMantra}
-              onValueChange={(itemValue) => setSelectedMantra(itemValue)}
-              style={styles.picker}
-              dropdownIconColor={THEME.primary}
-              mode="dropdown"
+        <div className="w-full max-w-xs space-y-2">
+          <label className="text-text-gold/60 text-[10px] font-bold uppercase tracking-[0.2em] block text-center">
+            Select Mantra
+          </label>
+          <div className="relative">
+            <select 
+              value={selectedMantra}
+              onChange={(e) => setSelectedMantra(e.target.value)}
+              className="w-full h-14 bg-card-dark border border-white/10 rounded-2xl px-6 appearance-none text-center font-bold focus:ring-1 focus:ring-primary/50"
             >
               {MANTRAS.map(m => (
-                <Picker.Item key={m.id} label={m.hindiName} value={m.id} color={Platform.OS === 'ios' ? THEME.white : THEME.text} />
+                <option key={m.id} value={m.id}>{m.name}</option>
               ))}
-            </Picker>
-          </View>
-        </View>
-      </View>
+            </select>
+            <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-primary pointer-events-none">
+              expand_more
+            </span>
+          </div>
+        </div>
+      </div>
 
       {/* Tap Trigger Area */}
-      <View style={styles.tapAreaContainer}>
-        <Pressable
-          onPress={incrementCount}
-          android_ripple={{ color: 'rgba(236,146,19,0.2)' }}
-          style={({ pressed }) => [
-            styles.tapButton,
-            pressed && styles.tapButtonPressed
-          ]}
+      <div className="px-6 pb-6" ref={containerRef}>
+        <button 
+          onMouseDown={handleTap}
+          onTouchStart={handleTap}
+          className="w-full h-24 bg-primary/5 border-2 border-primary/20 rounded-3xl flex flex-col items-center justify-center active:bg-primary/15 active:scale-[0.98] transition-all duration-75 relative overflow-hidden"
         >
-          <MaterialIcons name="touch-app" size={40} color={THEME.primary} />
-          <Text style={styles.tapButtonText}>जाप करने के लिए यहाँ स्पर्श करें</Text>
-        </Pressable>
-      </View>
+          <span className="material-symbols-outlined text-primary text-4xl">touch_app</span>
+          <p className="text-primary text-xs font-black tracking-widest mt-1">TAP TO COUNT</p>
+        </button>
+      </div>
 
       {/* Footer Controls */}
-      <View style={styles.footer}>
-        <TouchableOpacity onPress={() => setCount(0)} style={styles.footerButton}>
-          <View style={styles.footerIconBg}>
-            <MaterialIcons name="refresh" size={24} color={THEME.text} />
-          </View>
-          <Text style={styles.footerText}>रीसेट</Text>
-        </TouchableOpacity>
+      <div className="bg-card-dark/50 backdrop-blur-xl rounded-t-[40px] p-8 flex items-center justify-around border-t border-white/5">
+        <button onClick={() => setCount(0)} className="flex flex-col items-center gap-2 text-text-gold hover:text-white transition-colors">
+          <div className="p-4 rounded-full bg-white/5">
+            <span className="material-symbols-outlined text-2xl">refresh</span>
+          </div>
+          <span className="text-xs font-bold uppercase tracking-wider">Reset</span>
+        </button>
 
-        <TouchableOpacity
-          onPress={() => setIsPaused(!isPaused)}
-          style={styles.pauseButton}
+        <button 
+          onClick={() => setIsPaused(!isPaused)}
+          className="size-20 rounded-full bg-primary text-background-dark shadow-2xl shadow-primary/30 flex items-center justify-center active:scale-90 transition-transform"
         >
-          <MaterialIcons
-            name={isPaused ? 'play-arrow' : 'pause'}
-            size={40}
-            color={THEME.background}
-          />
-        </TouchableOpacity>
+          <span className="material-symbols-outlined text-4xl fill-1">
+            {isPaused ? 'play_arrow' : 'pause'}
+          </span>
+        </button>
 
-        <TouchableOpacity style={styles.footerButton}>
-          <View style={styles.footerIconBg}>
-            <MaterialIcons name="history" size={24} color={THEME.text} />
-          </View>
-          <Text style={styles.footerText}>इतिहास</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+        <button className="flex flex-col items-center gap-2 text-text-gold hover:text-white transition-colors">
+          <div className="p-4 rounded-full bg-white/5">
+            <span className="material-symbols-outlined text-2xl">history</span>
+          </div>
+          <span className="text-xs font-bold uppercase tracking-wider">History</span>
+        </button>
+      </div>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: THEME.background,
-  },
-  appBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-  },
-  appTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: THEME.white,
-  },
-  iconButton: {
-    padding: 8,
-  },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  counterCircle: {
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    borderWidth: 2,
-    borderColor: 'rgba(236,146,19,0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 40,
-  },
-  innerCircle: {
-    alignItems: 'center',
-  },
-  countText: {
-    fontSize: 80,
-    fontWeight: 'bold',
-    color: THEME.white,
-  },
-  countLabel: {
-    color: THEME.primary,
-    fontSize: 14,
-    fontWeight: 'bold',
-    letterSpacing: 2,
-    marginTop: -10,
-  },
-  statsContainer: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  statsText: {
-    color: THEME.text,
-    fontSize: 18,
-  },
-  statsUnderline: {
-    width: 60,
-    height: 2,
-    backgroundColor: 'rgba(236,146,19,0.4)',
-    marginTop: 8,
-    borderRadius: 1,
-  },
-  pickerContainer: {
-    width: '100%',
-    maxWidth: 300,
-  },
-  pickerLabel: {
-    color: 'rgba(193,155,103,0.6)',
-    fontSize: 10,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  pickerWrapper: {
-    backgroundColor: THEME.card,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    overflow: 'hidden',
-  },
-  picker: {
-    color: THEME.white,
-    height: 56,
-  },
-  tapAreaContainer: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-  },
-  tapButton: {
-    height: 100,
-    backgroundColor: 'rgba(236,146,19,0.05)',
-    borderWidth: 2,
-    borderColor: 'rgba(236,146,19,0.2)',
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tapButtonPressed: {
-    backgroundColor: 'rgba(236,146,19,0.15)',
-    transform: [{ scale: 0.98 }],
-  },
-  tapButtonText: {
-    color: THEME.primary,
-    fontSize: 12,
-    fontWeight: '900',
-    letterSpacing: 1,
-    marginTop: 4,
-  },
-  footer: {
-    backgroundColor: 'rgba(26,29,35,0.5)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingVertical: 24,
-    paddingHorizontal: 16,
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    borderTopWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-  },
-  footerButton: {
-    alignItems: 'center',
-  },
-  footerIconBg: {
-    padding: 12,
-    borderRadius: 100,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    marginBottom: 4,
-  },
-  footerText: {
-    color: THEME.text,
-    fontSize: 10,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-  },
-  pauseButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: THEME.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    // Shadow for Android
-    elevation: 8,
-    // Shadow for iOS
-    shadowColor: THEME.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-  },
-});
 
 export default JaapScreen;

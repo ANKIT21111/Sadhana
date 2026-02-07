@@ -1,319 +1,100 @@
+
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  Switch,
-  Dimensions,
-} from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import LinearGradient from 'react-native-linear-gradient';
 import { toHindiDigits } from '../constants';
 
-const { width } = Dimensions.get('window');
-
-const THEME = {
-  primary: '#ec9213',
-  background: '#0f1115',
-  card: '#1a1d23',
-  text: '#c19b67',
-  white: '#ffffff',
-};
-
-const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+const HomeScreen: React.FC<{ onJaapStart: () => void }> = ({ onJaapStart }) => {
   const [alarmEnabled, setAlarmEnabled] = useState(true);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+    <div className="flex flex-col pb-8">
       {/* Header */}
-      <View style={styles.header}>
-        <MaterialIcons name="temple-hindu" size={40} color={THEME.primary} style={styles.headerIcon} />
-        <Text style={styles.headerTitle}>आज का पंचांग</Text>
-        <Text style={styles.headerDate}>
+      <header className="p-6 text-center space-y-2">
+        <div className="flex justify-center mb-4">
+          <span className="material-symbols-outlined text-primary text-4xl">temple_hindu</span>
+        </div>
+        <h2 className="text-text-gold text-lg font-medium tracking-wide">आज का पंचांग</h2>
+        <h1 className="text-4xl font-bold tracking-tight">
           {toHindiDigits(14)} कार्तिक, {toHindiDigits(2080)}
-        </Text>
-      </View>
+        </h1>
+      </header>
 
       {/* Daily Progress */}
-      <View style={styles.card}>
-        <View style={styles.progressHeader}>
-          <Text style={styles.cardTitle}>दैनिक साधना प्रगति</Text>
-          <Text style={styles.progressPercent}>{toHindiDigits(91)}%</Text>
-        </View>
-        <View style={styles.progressBarBg}>
-          <View style={[styles.progressBarFill, { width: '91%' }]} />
-        </View>
-        <Text style={styles.progressNote}>सिद्धि के करीब: {toHindiDigits(992)} मंत्र शेष</Text>
-      </View>
+      <div className="px-6 mb-8">
+        <div className="bg-card-dark p-5 rounded-2xl border border-white/5 space-y-3">
+          <div className="flex justify-between items-center">
+            <h3 className="text-white font-bold">दैनिक साधना प्रगति</h3>
+            <span className="text-primary font-bold text-lg">{toHindiDigits(91)}%</span>
+          </div>
+          <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden">
+            <div className="h-full bg-primary rounded-full" style={{ width: '91%' }}></div>
+          </div>
+          <p className="text-text-gold text-xs">सिद्धि के करीब: {toHindiDigits(992)} मंत्र शेष</p>
+        </div>
+      </div>
 
       {/* Naam Jaap Card */}
-      <TouchableOpacity
-        style={styles.jaapCard}
-        activeOpacity={0.9}
-        onPress={() => navigation.navigate('जप')}
-      >
-        <View style={styles.jaapImageContainer}>
-          <Image
-            source={{ uri: 'https://picsum.photos/seed/mala/600/400' }}
-            style={styles.jaapImage}
-          />
-          <LinearGradient
-            colors={['transparent', THEME.card]}
-            style={styles.gradient}
-          />
-          <MaterialIcons name="auto-awesome" size={30} color={THEME.primary} style={styles.jaapPulseIcon} />
-        </View>
-        <View style={styles.jaapCardContent}>
-          <Text style={styles.jaapTitle}>नाम जप</Text>
-          <Text style={styles.jaapStats}>आज का जाप: {toHindiDigits('10,008')}</Text>
-          <Text style={styles.jaapNote}>लक्ष्य: {toHindiDigits('11,000')} | निरंतरता: {toHindiDigits(15)} दिन 🔥</Text>
-          <View style={styles.jaapButton}>
-            <MaterialIcons name="radio-button-checked" size={20} color={THEME.background} />
-            <Text style={styles.jaapButtonText}>जाप शुरू करें</Text>
-          </View>
-        </View>
-      </TouchableOpacity>
+      <div className="px-6 mb-8">
+        <div className="bg-card-dark rounded-3xl overflow-hidden border border-white/5 shadow-xl transition-transform active:scale-95 cursor-pointer" onClick={onJaapStart}>
+          <div className="h-48 relative">
+            <img 
+              src="https://picsum.photos/seed/mala/600/400" 
+              alt="Mala" 
+              className="w-full h-full object-cover opacity-80"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-card-dark to-transparent"></div>
+            <div className="absolute bottom-4 right-4 text-primary">
+               <span className="material-symbols-outlined text-3xl animate-pulse">auto_awesome</span>
+            </div>
+          </div>
+          <div className="p-5 space-y-4">
+            <div className="space-y-1">
+              <h2 className="text-2xl font-bold">नाम जप (Naam Jaap)</h2>
+              <p className="text-text-gold text-sm font-medium">आज का जाप: {toHindiDigits('10,008')}</p>
+              <p className="text-text-gold/60 text-xs">लक्ष्य: {toHindiDigits('11,000')} | निरंतरता: {toHindiDigits(15)} दिन 🔥</p>
+            </div>
+            <button className="w-full h-14 bg-primary text-background-dark font-bold text-lg rounded-xl flex items-center justify-center gap-3">
+              <span className="material-symbols-outlined fill-1">radio_button_checked</span>
+              जाप शुरू करें
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Brahma Muhurat */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionHeaderText}>ब्रह्म मुहूर्त (Brahma Muhurat)</Text>
-      </View>
-      <View style={styles.muhuratCard}>
-        <View style={styles.muhuratLeft}>
-          <View style={styles.muhuratIconBg}>
-            <MaterialIcons name="wb-sunny" size={30} color={THEME.primary} />
-          </View>
-          <View>
-            <Text style={styles.muhuratTime}>{toHindiDigits('04:22')} पूर्वाह्न</Text>
-            <Text style={styles.muhuratLabel}>अगला मुहूर्त अलार्म</Text>
-          </View>
-        </View>
-        <Switch
-          value={alarmEnabled}
-          onValueChange={setAlarmEnabled}
-          trackColor={{ false: 'rgba(255,255,255,0.1)', true: THEME.primary }}
-          thumbColor={THEME.white}
-        />
-      </View>
+      <div className="px-6">
+        <h3 className="text-text-gold font-bold uppercase tracking-widest text-xs mb-4">ब्रह्म मुहूर्त (Brahma Muhurat)</h3>
+        <div className="bg-card-dark p-4 rounded-2xl border border-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="size-14 bg-primary/20 rounded-2xl flex items-center justify-center">
+              <span className="material-symbols-outlined text-primary text-3xl">sunny</span>
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{toHindiDigits('04:22')} AM</p>
+              <p className="text-text-gold text-xs">अगला मुहूर्त अलार्म</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setAlarmEnabled(!alarmEnabled)}
+            className={`w-14 h-8 rounded-full transition-all duration-300 relative ${alarmEnabled ? 'bg-primary' : 'bg-white/10'}`}
+          >
+            <div className={`absolute top-1 size-6 rounded-full bg-white transition-all duration-300 ${alarmEnabled ? 'left-7' : 'left-1 shadow-sm'}`}></div>
+          </button>
+        </div>
+      </div>
 
       {/* Extra Grid */}
-      <View style={styles.grid}>
-        <View style={styles.gridItem}>
-          <MaterialIcons name="menu-book" size={40} color={THEME.primary} />
-          <Text style={styles.gridText}>भगवत गीता</Text>
-        </View>
-        <View style={styles.gridItem}>
-          <MaterialIcons name="self-improvement" size={40} color={THEME.primary} />
-          <Text style={styles.gridText}>ध्यान</Text>
-        </View>
-      </View>
-    </ScrollView>
+      <div className="grid grid-cols-2 gap-4 px-6 mt-8">
+        <div className="bg-card-dark p-6 rounded-2xl border border-white/5 flex flex-col items-center gap-3">
+          <span className="material-symbols-outlined text-primary text-4xl">menu_book</span>
+          <span className="font-bold">भगवत गीता</span>
+        </div>
+        <div className="bg-card-dark p-6 rounded-2xl border border-white/5 flex flex-col items-center gap-3">
+          <span className="material-symbols-outlined text-primary text-4xl">self_improvement</span>
+          <span className="font-bold">ध्यान</span>
+        </div>
+      </div>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: THEME.background,
-  },
-  scrollContent: {
-    paddingBottom: 40,
-  },
-  header: {
-    padding: 24,
-    alignItems: 'center',
-  },
-  headerIcon: {
-    marginBottom: 16,
-  },
-  headerTitle: {
-    color: THEME.text,
-    fontSize: 18,
-    fontWeight: '500',
-    letterSpacing: 1,
-  },
-  headerDate: {
-    color: THEME.white,
-    fontSize: 32,
-    fontWeight: 'bold',
-  },
-  card: {
-    backgroundColor: THEME.card,
-    marginHorizontal: 24,
-    padding: 20,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    marginBottom: 24,
-  },
-  progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  cardTitle: {
-    color: THEME.white,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  progressPercent: {
-    color: THEME.primary,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  progressBarBg: {
-    height: 12,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 6,
-    overflow: 'hidden',
-    marginBottom: 12,
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: THEME.primary,
-    borderRadius: 6,
-  },
-  progressNote: {
-    color: THEME.text,
-    fontSize: 12,
-  },
-  jaapCard: {
-    backgroundColor: THEME.card,
-    marginHorizontal: 24,
-    borderRadius: 32,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    marginBottom: 24,
-  },
-  jaapImageContainer: {
-    height: 200,
-    position: 'relative',
-  },
-  jaapImage: {
-    width: '100%',
-    height: '100%',
-    opacity: 0.8,
-  },
-  gradient: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 100,
-  },
-  jaapPulseIcon: {
-    position: 'absolute',
-    bottom: 16,
-    right: 16,
-  },
-  jaapCardContent: {
-    padding: 20,
-  },
-  jaapTitle: {
-    color: THEME.white,
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  jaapStats: {
-    color: THEME.text,
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 4,
-  },
-  jaapNote: {
-    color: 'rgba(193,155,103,0.6)',
-    fontSize: 12,
-    marginBottom: 16,
-  },
-  jaapButton: {
-    backgroundColor: THEME.primary,
-    height: 56,
-    borderRadius: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-  },
-  jaapButtonText: {
-    color: THEME.background,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  sectionHeader: {
-    paddingHorizontal: 24,
-    marginBottom: 16,
-  },
-  sectionHeaderText: {
-    color: THEME.text,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-    fontSize: 12,
-  },
-  muhuratCard: {
-    backgroundColor: THEME.card,
-    marginHorizontal: 24,
-    padding: 16,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  muhuratLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  muhuratIconBg: {
-    width: 56,
-    height: 56,
-    backgroundColor: 'rgba(236,146,19,0.2)',
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  muhuratTime: {
-    color: THEME.white,
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  muhuratLabel: {
-    color: THEME.text,
-    fontSize: 12,
-  },
-  grid: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    gap: 16,
-    marginTop: 24,
-  },
-  gridItem: {
-    flex: 1,
-    backgroundColor: THEME.card,
-    padding: 24,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
-    alignItems: 'center',
-    gap: 12,
-  },
-  gridText: {
-    color: THEME.white,
-    fontWeight: 'bold',
-  },
-});
 
 export default HomeScreen;
